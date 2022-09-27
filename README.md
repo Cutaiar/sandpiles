@@ -1,8 +1,11 @@
-# About this template
+# sandpiles
 
-This is a template for a sketch using the p5.js library in conjunction with Microsoft Typescript.
+p5.js & Typescript exploring sandpiles CA.
 
-## References
+## Development
 
-[p5.js library](https://p5js.org/)
-[Typescript](https://www.typescriptlang.org/)
+Uses [parcel](https://parceljs.org/).
+
+`npm start` for hot reloading dev experience on localhost
+
+`npm build` for prod build
