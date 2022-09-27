@@ -5,7 +5,7 @@
     "esModuleInterop": true,
     "sourceMap": true,
     "allowJs": true,
-    "lib": ["es6", "dom"],
+    "lib": ["ES2019", "dom"],
     "rootDir": "src",
     "moduleResolution": "node"
   }
