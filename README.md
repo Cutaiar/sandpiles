@@ -4,7 +4,7 @@
 
 A `p5.js` & `Typescript` implementation of a fascinating area of mathematics called [sandpiles](https://en.wikipedia.org/wiki/Abelian_sandpile_model).
 
-[Demo](https://sandpiles-cutaiar.netlify.app)
+[Demo](https://sandpiles.cutaiar.io)
 
 ![Alt text](sandpile.png)
 
