@@ -1,5 +1,7 @@
 import P5 from "p5";
 import "p5/lib/addons/p5.dom";
+import * as dat from 'dat.gui';
+
 
 var sketch = (p: P5) => {
   let sandpiles: number[][];
@@ -8,22 +10,48 @@ var sketch = (p: P5) => {
   const initialGrainsInCenter = 1000000;
   const numIterationsPerDraw = 10;
 
-  const color = (numGrains: number) => {
-    switch (numGrains) {
-      case 0:
-        return p.color("white");
-      case 1:
-        return p.color("#333333");
-      case 2:
-        return p.color("black");
-      case 3:
-        return p.color("#222222");
-      default:
-        return p.color(100, 100, 100);
-    }
-  };
+  const color = (index: number): P5.Color => p.color(Object.values(control.colors)[index % 4])
 
-  // todo x y recursive
+  const control = {
+    colors: {
+      c0:  "#ffffff",
+      c1: "#333333",
+      c2: "#000000",
+      c3: "#222222",
+    },
+    loop: true,
+    numIterationsPerDraw: 10,
+    // Function to save the current frame for use in other places
+    saveCanvas: () => p.saveCanvas('sandpile', 'png'),
+    // Function to save the current state of the sandpile as a file for loading later
+    saveState: () => p.saveJSON(sandpiles, "sandpiles"),
+    // Quick and dirty json load, not exemplary
+    loadState: async () => {
+      const [file] = await (window as any).showOpenFilePicker({
+        types: [
+          {
+            accept: {"application/json": ".json"}
+          },
+        ],
+        excludeAcceptAllOption: true,
+        multiple: false,
+      })
+      const f = await file.getFile()
+      const reader = new FileReader();
+      reader.onload = (function(theFile) {
+        return (e) => {
+         const j = JSON.parse(e.target.result as string);
+         sandpiles = j
+        };
+      })(f);
+      reader.readAsText(f);
+    },
+  }
+
+  /**
+   * The meat and potatoes of the program. This is the algorithm which takes the current state of the sandpile and applies our toppling rule.
+   * Note: this could be far more efficient
+   */
   const topple = () => {
     const newpiles = sandpiles.map<number[]>((arr) => arr.slice());
 
@@ -52,19 +80,37 @@ var sketch = (p: P5) => {
   p.setup = () => {
     console.log("🚀 - Setup initialized - P5 is running");
 
-    p.createCanvas(p.windowWidth, p.windowHeight);
+    // const w = p.windowWidth
+    // const h = p.windowHeight
+    const w = 200
+    const h = 200
 
-    sandpiles = new Array(p.windowWidth)
+    p.createCanvas(w, h);
+
+    // Set up sandpile initial state
+    sandpiles = new Array(w)
       .fill(0)
-      .map((x) => new Array(p.windowHeight).fill(0));
-    sandpiles[p.floor(p.windowWidth / 2)][
-      p.floor(p.windowHeight / 2)
+      .map((x) => new Array(h).fill(0));
+    sandpiles[p.floor(w / 2)][
+      p.floor(h / 2)
     ] = initialGrainsInCenter;
+
+    // Set up GUI
+    let gui = new dat.GUI()
+    gui.addColor(control.colors, "c0")
+    gui.addColor(control.colors, "c1")
+    gui.addColor(control.colors, "c2")
+    gui.addColor(control.colors, "c3")
+    gui.add(control, "loadState").name("Load State")
+    gui.add(control, "saveState").name("Save State")
+    gui.add(control, "saveCanvas").name("Save Canvas")
+    gui.add(control, "loop").onChange((v)=> v ? p.loop() : p.noLoop())
+    gui.add(control, "numIterationsPerDraw", 1, 1000)
   };
 
-  p.windowResized = () => {
-    p.resizeCanvas(p.windowWidth, p.windowHeight);
-  };
+  // p.windowResized = () => {
+  //   p.resizeCanvas(p.windowWidth, p.windowHeight);
+  // };
 
   const render = () => {
     p.loadPixels();
@@ -79,16 +125,10 @@ var sketch = (p: P5) => {
   p.draw = () => {
     p.background("white");
     render();
-    for (let x = 0; x < numIterationsPerDraw; x++) {
+    for (let x = 0; x < control.numIterationsPerDraw; x++) {
       topple();
     }
   };
-
-  p.keyPressed = () => {
-    if (p.key = " ") {
-      p.saveCanvas('sandpile', 'png')
-    }
-  }
 };
 
 new P5(sketch);
