@@ -2,13 +2,12 @@ import P5 from "p5";
 import "p5/lib/addons/p5.dom";
 import * as dat from 'dat.gui';
 
-
+/** Self contained P5 sandpile simulation */
 var sketch = (p: P5) => {
   let sandpiles: number[][];
 
-  const toppleThreshold = 3;
+  const toppleThreshold = 3; // Note: if this changes, more colors should be added to visualize
   const initialGrainsInCenter = 1000000;
-  const numIterationsPerDraw = 10;
 
   const color = (index: number): P5.Color => p.color(Object.values(control.colors)[index % 4])
 
@@ -105,13 +104,12 @@ var sketch = (p: P5) => {
     gui.add(control, "saveState").name("Save State")
     gui.add(control, "saveCanvas").name("Save Canvas")
     gui.add(control, "loop").onChange((v)=> v ? p.loop() : p.noLoop())
-    gui.add(control, "numIterationsPerDraw", 1, 1000)
+    gui.add(control, "numIterationsPerDraw", 1, 1000).name("Iterations")
   };
 
-  // p.windowResized = () => {
-  //   p.resizeCanvas(p.windowWidth, p.windowHeight);
-  // };
-
+  /**
+   * Set the canvas' pixels according to the sandpile and the color function.
+   */
   const render = () => {
     p.loadPixels();
     for (let x = 0; x < sandpiles.length; x++) {
