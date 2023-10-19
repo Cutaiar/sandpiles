@@ -4,16 +4,20 @@ import "p5/lib/addons/p5.dom";
 var sketch = (p: P5) => {
   let sandpiles: number[][];
 
-  const color = (grains: number) => {
-    switch (grains) {
+  const toppleThreshold = 3;
+  const initialGrainsInCenter = 1000000;
+  const numIterationsPerDraw = 10;
+
+  const color = (numGrains: number) => {
+    switch (numGrains) {
       case 0:
-        return p.color("#FFF01C");
+        return p.color("white");
       case 1:
-        return p.color("#E0A941");
+        return p.color("#333333");
       case 2:
-        return p.color("#F56F3B");
+        return p.color("black");
       case 3:
-        return p.color("#E03D80");
+        return p.color("#222222");
       default:
         return p.color(100, 100, 100);
     }
@@ -25,7 +29,7 @@ var sketch = (p: P5) => {
 
     for (let x = 0; x < sandpiles.length; x++) {
       for (let y = 0; y < sandpiles[x].length; y++) {
-        if (sandpiles[x][y] > 3) {
+        if (sandpiles[x][y] > toppleThreshold) {
           // topple sand to neighbors
           const neighborIndicies = [
             [x + 1, y],
@@ -55,7 +59,7 @@ var sketch = (p: P5) => {
       .map((x) => new Array(p.windowHeight).fill(0));
     sandpiles[p.floor(p.windowWidth / 2)][
       p.floor(p.windowHeight / 2)
-    ] = 1000000;
+    ] = initialGrainsInCenter;
   };
 
   p.windowResized = () => {
@@ -73,12 +77,18 @@ var sketch = (p: P5) => {
   };
 
   p.draw = () => {
-    p.background(0);
+    p.background("white");
     render();
-    for (let x = 0; x < 100; x++) {
+    for (let x = 0; x < numIterationsPerDraw; x++) {
       topple();
     }
   };
+
+  p.keyPressed = () => {
+    if (p.key = " ") {
+      p.saveCanvas('sandpile', 'png')
+    }
+  }
 };
 
 new P5(sketch);
